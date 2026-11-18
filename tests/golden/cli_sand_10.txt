@@ -1,0 +1,42 @@
+Create a cinematic 3x3 timed storyboard for a 10-second Seedance 2.0 video sequence based on the uploaded image.
+
+The storyboard must look like a professional film pre-production board, similar to a cinematic commercial storyboard. It must contain 9 panels in a clean 3x3 grid.
+
+Each panel must include:
+• panel number
+• timecode
+• short cinematic shot title
+• one short action description
+
+Use the uploaded image as the main character reference.
+
+Preserve the same character identity, facial structure, outfit, materials, colors, accessories, environment, lighting direction, atmosphere, cinematic color grading, and visual style from the uploaded image.
+
+The scene concept:
+A mysterious desert oracle stands alone in alien dunes. The wind rises. She senses something under the sand. A mechanical shape moves beneath the dunes. Dust explodes behind her. A massive sand serpent breaks through the desert. She remains calm inside the storm.
+
+Storyboard timing and panels:
+
+(0:00–0:01) DESERT SILENCE — Extreme wide shot. The oracle stands alone in vast alien dunes, showing the world and its scale. Calm and silent.
+
+(0:01–0:02) THE WIND RISES — Medium shot. Her cloak starts moving as the wind picks up. The atmosphere becomes more tense.
+
+(0:02–0:03) SHE SENSES IT — Close-up portrait. Her eyes shift subtly. She feels something beneath the sand.
+
+(0:03–0:04) SAND VIBRATION — Detail shot. Sand grains, jewelry and fabric tremble - something is coming.
+
+(0:04–0:05) LOW RUMBLE — Low-angle or dramatic medium shot. The camera drops low; the dunes feel heavier and unstable around her.
+
+(0:05–0:06) SHADOW UNDER THE DUNES — Wide shot. A dark mechanical shape moves beneath the dunes, not fully revealed.
+
+(0:06–0:07) DUST WALL — Side profile or cinematic angle. A wall of dust rises behind her as she slowly turns toward the movement.
+
+(0:07–0:08.5) THE REVEAL — Wide action shot. A massive mechanical sand serpent breaks through the dunes in an explosion of sand.
+
+(0:08.5–0:10) HERO ENDING — Low-angle hero shot. She stands calm and iconic inside the storm as the serpent towers behind her.
+
+Make every panel feel like a real frame from the same expensive cinematic sequence. The storyboard must have strong visual continuity. The character, outfit, environment, lighting direction, atmosphere, color palette, and cinematic style must remain consistent across all 9 panels.
+
+The composition should feel premium, clean, readable, and cinematic. Use black borders between panels like a professional storyboard. Keep the timecodes and titles small but readable. The images should be the main focus.
+
+Avoid redesigning the character, changing the outfit, changing the environment, changing the lighting style, adding extra characters, adding random objects, changing the face, cartoon style, CGI look, plastic skin, distorted anatomy, messy unreadable text, logos, watermarks, UI elements, or unrelated captions.

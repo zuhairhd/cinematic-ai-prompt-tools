@@ -1,0 +1,97 @@
+CINEMATIC REALISM: LEARN TO SEE BEFORE YOU PROMPT
+
+The useful lesson
+Describe a deliberate shot instead of asking for "cinematic, 8K, handsome model". Start with a reference you like, describe what makes it work, choose a coherent recreation, generate, and change one variable at a time.
+
+PROMPT ORDER
+Subject + styling + action → setting → framing + camera position → lens + distance + aperture + focus → motivated lighting → texture → color + finish → constraints.
+
+1. SUBJECT, STORY AND COMPOSITION
+Say who or what is visible, how the subject is positioned, where the gaze goes, which props matter, and what the scene should communicate. Specify crop boundaries and negative space. An 85 mm close-up will not naturally show an entire workshop and a foreground phone in equal detail.
+
+2. LIGHT: THE MOST USEFUL PLACE TO START
+Ask where the main light is coming from, what its shadow edges look like, and how much detail remains on the dark side.
+
+Direction: use camera-left / camera-right to avoid confusing the viewer's left with the subject's left.
+Quality: a large source relative to the subject usually makes softer shadows; a small apparent source makes harder edges. Size and distance work together.
+Motivation: window, sun, softbox, overhead fixture, lamp or another plausible source.
+Fill: controls shadow density. "Fill contribution two stops below key" is clearer than "dramatic lighting".
+Negative fill: a black surface absorbs ambient bounce and deepens shadows.
+Rim: an edge light only makes sense if a source can reach that edge. Explicitly choose no rim when the reference has none.
+Practicals: visible lamps can motivate background illumination. A weak phone screen should not magically rim-light a whole person from the wrong direction.
+Catchlights: eye reflections should agree with source direction, size and number.
+
+Rembrandt: a small lit triangle on the shadow-side cheek, with the nose shadow connecting toward the cheek shadow. A light near 45 degrees to one side and above the eyes is a starting point; face angle and light placement change the result.
+Split: a light from the side divides the face into light and shadow.
+Loop: the nose casts a short shadow toward the cheek without joining the main cheek shadow.
+Butterfly: high frontal light produces a small shadow below the nose.
+
+These patterns describe geometry, not a universal recipe. Not every portrait needs Rembrandt lighting.
+
+3. CAMERA AND LENS
+Choose shot size, camera distance and focal length together. Perspective depends on camera position; changing a lens at the same position changes framing, not perspective. For the same head framing, using a longer lens normally means stepping back, which changes how facial proportions appear.
+
+Useful recreation starting points, stated as full-frame equivalents:
+35 mm: environmental scenes where surroundings matter.
+50 mm: a moderate field of view for people and their setting.
+85 mm: portraits from a comfortable working distance.
+135 mm: tighter, more distant portraits and greater subject isolation with suitable placement.
+
+These are creative starting points, not required settings or proof of the original lens.
+
+Aperture: f/2 can isolate a face; f/4–f/8 can help retain more facial or prop detail. Depth of field also depends on focal length, distance and format. Do not demand a wide-aperture look and equal sharpness at widely separated depths without a reason.
+Focus: specify the near eye, both eyes, a product label, or another intentional target.
+Shutter/ISO: choose plausible still-photo settings and exposure behavior. Image generators do not function like real cameras; a numeric ISO or shutter speed does not guarantee a physical simulation.
+
+4. COLOR AND TEXTURE
+Describe the palette, saturation, highlight rolloff, shadow color and skin tone treatment. Cinematic images can be bright, clean and saturated; they do not all need teal-orange, deep shadows or film grain.
+Natural texture includes pores, fine lines, hair and fabric weave at a believable scale. Avoid exaggerated pores, gritty noise and oversharpening. Add subtle grain only when it suits the reference.
+
+5. OBSERVED vs. INFERRED vs. PROPOSED vs. USER
+Observed: a visible property, such as a soft shadow edge or a brown coat.
+Inferred: a plausible explanation from visual evidence, such as a broad source camera-left.
+Proposed: an explicit setting selected to recreate the look, such as an 85 mm lens at f/2.8.
+User: a choice you edited yourself.
+
+An uploaded image cannot reveal exact original lens, aperture, Kelvin values, distances or lighting power from pixels alone. This app strips EXIF rather than reading camera metadata, and does not claim to recover it. Evidence labels are helpful, but the analysis can still be mistaken.
+
+6. CORRECTING THE LESSON'S SHORTCUTS
+"70% of realism is lighting" is a teaching emphasis, not a measured universal rule.
+Leaving light unspecified does not guarantee that a generator simulates an on-camera flash.
+An 85 mm lens is not automatically the correct lens for every subject or framing.
+No text prompt can remove all model interpretation or guarantee 100% face consistency.
+Use reference-image features and controlled iteration when consistency matters.
+
+7. USE THIS APP
+Choose image → AI connection → mode/brief/ratio → Analyze → inspect Evidence & estimates → edit 33 shot choices → copy/export.
+
+Match reference style keeps the reference's look. Cinematic reinterpretation asks for deliberate changes. The optional brief can replace the subject or scene; the visible evidence still describes the original image.
+
+The Full prompt includes every required field, even explicit absences such as "no separate rim light". Coverage is a completeness check, not a claim that the choices are physically perfect. When you change focal length, check distance, framing and focus. When you change the key, check shadows, fill and catchlights. If you change aspect ratio after analysis, review composition.
+
+Open example is a hand-written teaching plan. It does not analyze your selected image and uses no API.
+
+8. GENERATE AND ITERATE
+Attach the SAME reference image in your chosen image generator. Use its style-reference controls for style transfer, or its identity-reference controls for a character. This app does not upload references to the image generator for you.
+
+Universal output: descriptive text suitable for many image tools. Set aspect ratio in that tool if it has a dedicated control; text alone may not enforce dimensions.
+Midjourney output: adds --ar and --raw. Add the reference through Midjourney's own reference controls. No image URL is fabricated and no model version is forced. Some tools have separate negative-prompt fields; copy the AVOID section there if supported.
+
+Generate a small set, compare shadows, face/hands, textures and color with the reference, then change one decision. Keep previous projects to compare.
+
+Practice exercise
+Open the example and study its lighting choices. Export it. Change only key_direction and pattern to a coherent split-light setup, then update shadows and catchlights to agree. Compare the generated result. Next try f/5.6 and update focus to retain more depth.
+
+Limitations
+The app creates prompts, not images or video. Image analysis requires OpenAI API access or a running local Ollama vision model. It cannot guarantee a model will follow every instruction. Very long prompts may need shortening for a particular generator. Local vision quality and speed depend on model and hardware.
+
+Primary implementation references (checked 12 November 2026)
+https://developers.openai.com/api/docs/guides/images-vision
+https://developers.openai.com/api/docs/guides/structured-outputs
+https://developers.openai.com/api/docs/models/gpt-4.1
+https://docs.ollama.com/capabilities/structured-outputs
+https://docs.ollama.com/api/chat
+https://docs.midjourney.com/hc/en-us/articles/32634113811853-Raw
+https://docs.midjourney.com/hc/en-us/articles/31894244298125-Aspect-Ratio
+
+Prepared from your supplied lesson transcript with practical clarifications. The GUI does not need the source video or PDF to run.

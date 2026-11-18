@@ -1,0 +1,68 @@
+# Storm at Sea - Timed Storyboard Plan
+
+**Duration:** 15 s  |  **Video model:** Seedance 2.0
+
+## Scene concept
+A lone captain stands on the deck of an old ship on a dark ocean. The sea goes still, then the wind turns. Something huge moves beneath the waves. Lightning splits the sky as a colossal sea creature rises. The captain holds the wheel, unshaken.
+
+## Beat sheet
+
+| # | Timecode | Shot title | Shot type | Action | Purpose |
+|---|---|---|---|---|---|
+| 1 | 0:00–0:01.5 | STILL WATER | Extreme wide shot | The ship sits alone on a calm, dark ocean under heavy clouds. | Establish world & scale - calm |
+| 2 | 0:01.5–0:03 | THE WIND TURNS | Medium shot | Sails snap and rain begins to slant across the deck. | Atmosphere starts moving |
+| 3 | 0:03–0:04.5 | THE CAPTAIN LISTENS | Close-up portrait | The captain's eyes narrow toward the horizon. | Emotional moment - character notices |
+| 4 | 0:04.5–0:06 | ROPES TIGHTEN | Detail shot | Wet ropes creak and the compass needle spins. | Small detail reacts - something is coming |
+| 5 | 0:06–0:07.5 | SWELL RISES | Low-angle or dramatic medium shot | Waves grow taller and the deck tilts. | Environment gets heavier |
+| 6 | 0:07.5–0:09 | SHAPE BENEATH | Wide shot | A vast dark shadow glides under the water near the ship. | Tease the threat - don't fully reveal |
+| 7 | 0:09–0:10.5 | LIGHTNING FLASH | Side profile or cinematic angle | Lightning lights the captain's profile as they turn. | Character turns toward the movement |
+| 8 | 0:10.5–0:12.5 | THE LEVIATHAN | Wide action shot | A colossal sea creature erupts from the waves beside the ship. | Big action beat - the reveal |
+| 9 | 0:12.5–0:15 | HOLD THE WHEEL | Low-angle hero shot | The captain grips the wheel, calm and defiant in the storm. | Iconic hero payoff |
+
+## GPT Image 2 prompt
+
+```text
+Create a cinematic 3x3 timed storyboard for a 15-second Seedance 2.0 video sequence based on the uploaded image.
+
+The storyboard must look like a professional film pre-production board, similar to a cinematic commercial storyboard. It must contain 9 panels in a clean 3x3 grid.
+
+Each panel must include:
+• panel number
+• timecode
+• short cinematic shot title
+• one short action description
+
+Use the uploaded image as the main character reference.
+
+Preserve the same character identity, facial structure, outfit, materials, colors, accessories, environment, lighting direction, atmosphere, cinematic color grading, and visual style from the uploaded image.
+
+The scene concept:
+A lone captain stands on the deck of an old ship on a dark ocean. The sea goes still, then the wind turns. Something huge moves beneath the waves. Lightning splits the sky as a colossal sea creature rises. The captain holds the wheel, unshaken.
+
+Storyboard timing and panels:
+
+(0:00–0:01.5) STILL WATER — Extreme wide shot. The ship sits alone on a calm, dark ocean under heavy clouds.
+
+(0:01.5–0:03) THE WIND TURNS — Medium shot. Sails snap and rain begins to slant across the deck.
+
+(0:03–0:04.5) THE CAPTAIN LISTENS — Close-up portrait. The captain's eyes narrow toward the horizon.
+
+(0:04.5–0:06) ROPES TIGHTEN — Detail shot. Wet ropes creak and the compass needle spins.
+
+(0:06–0:07.5) SWELL RISES — Low-angle or dramatic medium shot. Waves grow taller and the deck tilts.
+
+(0:07.5–0:09) SHAPE BENEATH — Wide shot. A vast dark shadow glides under the water near the ship.
+
+(0:09–0:10.5) LIGHTNING FLASH — Side profile or cinematic angle. Lightning lights the captain's profile as they turn.
+
+(0:10.5–0:12.5) THE LEVIATHAN — Wide action shot. A colossal sea creature erupts from the waves beside the ship.
+
+(0:12.5–0:15) HOLD THE WHEEL — Low-angle hero shot. The captain grips the wheel, calm and defiant in the storm.
+
+Make every panel feel like a real frame from the same expensive cinematic sequence. The storyboard must have strong visual continuity. The character, outfit, environment, lighting direction, atmosphere, color palette, and cinematic style must remain consistent across all 9 panels.
+
+The composition should feel premium, clean, readable, and cinematic. Use black borders between panels like a professional storyboard. Keep the timecodes and titles small but readable. The images should be the main focus.
+
+Avoid redesigning the character, changing the outfit, changing the environment, changing the lighting style, adding extra characters, adding random objects, changing the face, cartoon style, CGI look, plastic skin, distorted anatomy, messy unreadable text, logos, watermarks, UI elements, or unrelated captions.
+```
+

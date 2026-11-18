@@ -1,0 +1,235 @@
+{
+  "format": "cinematic-prompt-studio",
+  "version": 1,
+  "app_version": "1.0.0",
+  "analysis": {
+    "summary": "Hand-authored teaching example: a quiet, textured portrait with soft camera-left lighting. No uploaded image was analyzed.",
+    "fields": {
+      "subject": {
+        "observation": "Teaching example; no reference image was analyzed.",
+        "choice": "An adult male model with short dark hair, light stubble and a calm, attentive expression; preserve believable facial asymmetry.",
+        "basis": "proposed",
+        "reason": "A deliberate choice for this teaching portrait; edit it to suit your own reference and check related settings."
+      },
+      "wardrobe": {
+        "observation": "Teaching example; no reference image was analyzed.",
+        "choice": "Charcoal wool coat over a dark olive crew-neck shirt, naturally creased fabric, understated styling and a few loose hair strands.",
+        "basis": "proposed",
+        "reason": "A deliberate choice for this teaching portrait; edit it to suit your own reference and check related settings."
+      },
+      "pose": {
+        "observation": "Teaching example; no reference image was analyzed.",
+        "choice": "Standing with shoulders turned 15 degrees camera-right, head turned toward the camera, relaxed mouth, eyes looking into the lens; hands outside the crop.",
+        "basis": "proposed",
+        "reason": "A deliberate choice for this teaching portrait; edit it to suit your own reference and check related settings."
+      },
+      "setting": {
+        "observation": "Teaching example; no reference image was analyzed.",
+        "choice": "A quiet studio with a dark, matte taupe backdrop 2.5 metres behind the subject; no visible props or foreground obstruction.",
+        "basis": "proposed",
+        "reason": "A deliberate choice for this teaching portrait; edit it to suit your own reference and check related settings."
+      },
+      "story": {
+        "observation": "Teaching example; no reference image was analyzed.",
+        "choice": "A restrained, thoughtful editorial portrait with quiet confidence and a sense of intimacy.",
+        "basis": "proposed",
+        "reason": "A deliberate choice for this teaching portrait; edit it to suit your own reference and check related settings."
+      },
+      "framing": {
+        "observation": "Teaching example; no reference image was analyzed.",
+        "choice": "Vertical head-and-shoulders portrait in 4:5, cropping at the upper chest and retaining the full crown of the head.",
+        "basis": "proposed",
+        "reason": "A deliberate choice for this teaching portrait; edit it to suit your own reference and check related settings."
+      },
+      "placement": {
+        "observation": "Teaching example; no reference image was analyzed.",
+        "choice": "Face slightly left of center, eyes near the upper-third line, modest headroom and a small area of clean background on the right.",
+        "basis": "proposed",
+        "reason": "A deliberate choice for this teaching portrait; edit it to suit your own reference and check related settings."
+      },
+      "camera_position": {
+        "observation": "Teaching example; no reference image was analyzed.",
+        "choice": "Camera at the subject's eye height, level horizon, optical axis approximately horizontal, no Dutch tilt.",
+        "basis": "proposed",
+        "reason": "A deliberate choice for this teaching portrait; edit it to suit your own reference and check related settings."
+      },
+      "sensor": {
+        "observation": "Teaching example; no reference image was analyzed.",
+        "choice": "Use a full-frame 36 by 24 mm capture look with natural tonal transitions; this is a recreation target.",
+        "basis": "proposed",
+        "reason": "A deliberate choice for this teaching portrait; edit it to suit your own reference and check related settings."
+      },
+      "lens": {
+        "observation": "Teaching example; no reference image was analyzed.",
+        "choice": "85 mm full-frame-equivalent portrait lens with gentle optical falloff and minimal visible geometric distortion.",
+        "basis": "proposed",
+        "reason": "The focal length works with the chosen distance and framing; it is not recovered from an image."
+      },
+      "distance": {
+        "observation": "Teaching example; no reference image was analyzed.",
+        "choice": "Camera approximately 1.7 metres from the eyes, yielding an intimate head-and-shoulders crop with restrained facial perspective.",
+        "basis": "proposed",
+        "reason": "Distance sets perspective and is chosen together with crop and lens."
+      },
+      "aperture": {
+        "observation": "Teaching example; no reference image was analyzed.",
+        "choice": "Use f/2.8 for moderate subject isolation while retaining believable facial structure and gradual depth transitions.",
+        "basis": "proposed",
+        "reason": "A modestly shallow focus effect supports the portrait without demanding both eyes at very different depths be sharp."
+      },
+      "focus": {
+        "observation": "Teaching example; no reference image was analyzed.",
+        "choice": "Focus precisely on the nearer iris; keep both eyes acceptably resolved by holding the face near parallel to the focal plane, with ears and backdrop softer.",
+        "basis": "proposed",
+        "reason": "A deliberate choice for this teaching portrait; edit it to suit your own reference and check related settings."
+      },
+      "shutter": {
+        "observation": "Teaching example; no reference image was analyzed.",
+        "choice": "Use a proposed 1/160 second still-photo exposure with a stationary subject and no visible motion blur.",
+        "basis": "proposed",
+        "reason": "A deliberate choice for this teaching portrait; edit it to suit your own reference and check related settings."
+      },
+      "iso": {
+        "observation": "Teaching example; no reference image was analyzed.",
+        "choice": "Use a proposed ISO 400 capture look; expose the lit cheek naturally, retain shadow-side texture and avoid clipped skin highlights.",
+        "basis": "proposed",
+        "reason": "A deliberate choice for this teaching portrait; edit it to suit your own reference and check related settings."
+      },
+      "white_balance": {
+        "observation": "Teaching example; no reference image was analyzed.",
+        "choice": "Set white balance to 4800 K with neutral green-magenta tint, allowing the 5000 K key to read slightly cool before grading.",
+        "basis": "proposed",
+        "reason": "Camera white balance and source temperature are distinct settings; grading is an additional deliberate choice."
+      },
+      "key_source": {
+        "observation": "Teaching example; no reference image was analyzed.",
+        "choice": "One 90 cm softbox with diffusion, approximately 1.2 metres from the face, motivated as a broad window-like source.",
+        "basis": "proposed",
+        "reason": "A deliberate choice for this teaching portrait; edit it to suit your own reference and check related settings."
+      },
+      "key_direction": {
+        "observation": "Teaching example; no reference image was analyzed.",
+        "choice": "Place the key 45 degrees camera-left and about 30 degrees above eye level, aimed toward the face at roughly 1.2 metres distance.",
+        "basis": "proposed",
+        "reason": "This is a starting placement; the final triangle depends on head and facial geometry."
+      },
+      "key_quality": {
+        "observation": "Teaching example; no reference image was analyzed.",
+        "choice": "Broad, soft-edged illumination with gradual cheek transitions, gentle wrap and visible falloff toward the far shoulder.",
+        "basis": "proposed",
+        "reason": "A deliberate choice for this teaching portrait; edit it to suit your own reference and check related settings."
+      },
+      "key_temperature": {
+        "observation": "Teaching example; no reference image was analyzed.",
+        "choice": "Set the main source to a proposed 5000 K neutral daylight character; preserve natural skin color.",
+        "basis": "proposed",
+        "reason": "A deliberate choice for this teaching portrait; edit it to suit your own reference and check related settings."
+      },
+      "pattern": {
+        "observation": "Teaching example; no reference image was analyzed.",
+        "choice": "A Rembrandt-like pattern, adjusting head rotation so a small triangle of light remains on the shadow-side cheek beneath the eye.",
+        "basis": "proposed",
+        "reason": "A deliberate choice for this teaching portrait; edit it to suit your own reference and check related settings."
+      },
+      "fill": {
+        "observation": "Teaching example; no reference image was analyzed.",
+        "choice": "Use a subtle neutral white bounce camera-right with its isolated contribution two stops below the key; retain deep but readable shadows.",
+        "basis": "proposed",
+        "reason": "A lower fill contribution keeps shape while preserving shadow detail."
+      },
+      "rim": {
+        "observation": "Teaching example; no reference image was analyzed.",
+        "choice": "No separate rim or hair light; keep the hair edge subdued and let background tone provide modest separation.",
+        "basis": "proposed",
+        "reason": "A deliberate choice for this teaching portrait; edit it to suit your own reference and check related settings."
+      },
+      "practicals": {
+        "observation": "Teaching example; no reference image was analyzed.",
+        "choice": "No visible practical lamps and no separate background light; illuminate the backdrop only with low-level key spill.",
+        "basis": "proposed",
+        "reason": "A deliberate choice for this teaching portrait; edit it to suit your own reference and check related settings."
+      },
+      "shadows": {
+        "observation": "Teaching example; no reference image was analyzed.",
+        "choice": "Shadows fall toward camera-right and slightly downward; keep soft nose and jaw edges, credible contact shadows and rich blacks with retained skin detail.",
+        "basis": "proposed",
+        "reason": "A deliberate choice for this teaching portrait; edit it to suit your own reference and check related settings."
+      },
+      "catchlights": {
+        "observation": "Teaching example; no reference image was analyzed.",
+        "choice": "One dominant soft rectangular catchlight high on the camera-left side of each iris; any bounce reflection is much weaker.",
+        "basis": "proposed",
+        "reason": "The shape and position follow the single large key; a strong extra reflection would contradict the setup."
+      },
+      "palette": {
+        "observation": "Teaching example; no reference image was analyzed.",
+        "choice": "Restrained charcoal, olive, taupe and natural warm skin tones; moderate overall desaturation with skin remaining lifelike.",
+        "basis": "proposed",
+        "reason": "A deliberate choice for this teaching portrait; edit it to suit your own reference and check related settings."
+      },
+      "grade": {
+        "observation": "Teaching example; no reference image was analyzed.",
+        "choice": "Gentle S-curve, subtle cool shadows, restrained warm highlights and smooth highlight rolloff; retain a neutral skin midtone without heavy teal-orange separation.",
+        "basis": "proposed",
+        "reason": "A deliberate choice for this teaching portrait; edit it to suit your own reference and check related settings."
+      },
+      "skin": {
+        "observation": "Teaching example; no reference image was analyzed.",
+        "choice": "Preserve small pores, fine lines, stubble and natural tonal variation with mild skin sheen; avoid airbrushing and exaggerated coarse pores.",
+        "basis": "proposed",
+        "reason": "A deliberate choice for this teaching portrait; edit it to suit your own reference and check related settings."
+      },
+      "materials": {
+        "observation": "Teaching example; no reference image was analyzed.",
+        "choice": "Resolve the wool weave and shirt fibers softly, retain natural fabric folds and individual hair strands without crunchy edge sharpening.",
+        "basis": "proposed",
+        "reason": "A deliberate choice for this teaching portrait; edit it to suit your own reference and check related settings."
+      },
+      "grain": {
+        "observation": "Teaching example; no reference image was analyzed.",
+        "choice": "Add very fine, low-intensity monochromatic film-like grain; retain clean eyes, subtle microcontrast and restrained optical sharpening.",
+        "basis": "proposed",
+        "reason": "A deliberate choice for this teaching portrait; edit it to suit your own reference and check related settings."
+      },
+      "atmosphere": {
+        "observation": "Teaching example; no reference image was analyzed.",
+        "choice": "Clear air with no added fog, lens flare or visible bloom; no artificial light beams.",
+        "basis": "proposed",
+        "reason": "A deliberate choice for this teaching portrait; edit it to suit your own reference and check related settings."
+      },
+      "constraints": {
+        "observation": "Teaching example; no reference image was analyzed.",
+        "choice": "Keep facial proportions believable, gaze coherent and wardrobe consistent; include no text, logos or extra people, and keep hands outside the chosen crop.",
+        "basis": "proposed",
+        "reason": "A deliberate choice for this teaching portrait; edit it to suit your own reference and check related settings."
+      }
+    },
+    "avoid": [
+      "waxy or airbrushed skin",
+      "over-sharpened pores",
+      "inconsistent eye reflections",
+      "warped facial features",
+      "floating fabric edges",
+      "clipped facial highlights",
+      "unmotivated rim light",
+      "text, watermarks and invented logos"
+    ],
+    "uncertainties": [
+      "This is a hand-written example, not an AI analysis of any image.",
+      "All numeric camera and lighting settings are recreation choices.",
+      "The exact visible result still depends on the image model and reference controls."
+    ]
+  },
+  "options": {
+    "ratio": "4:5",
+    "target": "Universal",
+    "mode": "Match reference style",
+    "brief": ""
+  },
+  "image": {},
+  "provenance": {
+    "demo": true,
+    "provider": "Hand-authored example",
+    "model": "None"
+  }
+}

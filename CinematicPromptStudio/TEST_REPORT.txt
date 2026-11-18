@@ -1,0 +1,35 @@
+CINEMATIC PROMPT STUDIO - DELIVERY CHECKS
+12 November 2026
+
+PASS: 22 core tests on Python 3.12.
+- Complete 33-field prompt coverage and Midjourney parameter formatting.
+- Missing fields, unspecified/automatic choices and nonnumeric camera settings rejected.
+- Nonmeasurable camera settings relabeled as estimates if a model calls them observed.
+- Manual edits propagate to prompt and evidence.
+- Project save/load round trip and credential/path/image-byte exclusion.
+- Invalid project/image inputs handled.
+- Image resizing, EXIF orientation, metadata removal and transparent-image conversion.
+- Local endpoint restrictions.
+- Strict OpenAI structured-output request with actual image payload, using a mocked response.
+- Provider refusal, incomplete and invalid JSON responses rejected.
+- Ollama image/schema payload and local-model capability preflight, using mocked responses.
+- Actual HTTP transport against a local test server, including error-body privacy.
+
+PASS: 4 GUI tests using real Tk widgets on a temporary Linux Xorg desktop.
+- Teaching example -> edit choice -> clipboard -> TXT export -> project save/reopen.
+- Background analyzer success updates widgets.
+- Analyzer failure preserves an existing plan.
+- A canceled request's late result is discarded.
+
+PASS: Python syntax compilation for app, core, installer and tests.
+
+VISUAL REVIEW
+Inspected prompt, editor, settings and smaller-window screenshots. Added a scrollable sidebar for smaller windows and responsive wrapping in the field editor. Linux rendering is not a substitute for Windows font/DPI testing.
+
+NOT RUN
+- No live OpenAI inference: no user API key was available.
+- No live Ollama inference: no installed vision model was available.
+- No native Windows installation: this workspace is Linux and the user's Z: drive is not mounted.
+- No image-generation quality benchmark: this application produces prompts and does not generate images.
+
+The shipped teaching example is hand-authored and explicitly labeled. Provider tests use mocks for analysis content; they verify request shape and handling, not model judgment or output quality.

@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+venv/
+.venv/
+
+# Local backups / archives (the zips contain course material that must not be published)
+backup/
+*.zip
+*.pdf
+_previous_install_*/
+
+# Secrets & local config
+.env
+*.env
+
+# User output
+*_prompt.txt
+*_storyboard_plan.md

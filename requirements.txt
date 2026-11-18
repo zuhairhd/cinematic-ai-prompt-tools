@@ -1,0 +1,3 @@
+# Manual mode needs only the Python standard library (+ tkinter).
+# AI Story Director mode:
+openai>=1.66
