@@ -9,7 +9,7 @@ from copy import deepcopy
 from datetime import datetime, timezone
 
 from . import SCHEMA_VERSION
-from .constants import AVOID_DEFAULT, PRESERVE_ITEMS
+from .constants import AVOID_DEFAULT, PRESERVE_ITEMS, REFERENCE_ROLES
 from .storyboard_validator import CHANGE_GROUPS, change_groups
 from .timing import compute_timeline
 
@@ -109,10 +109,14 @@ def story_meta(sb):
 
 
 def beat_from_ai(b):
-    return {"title": b["title"].strip().upper(), "shot": b["shot_type"].strip(), "action": b["action"].strip(),
+    out = {"title": b["title"].strip().upper(), "shot": b["shot_type"].strip(), "action": b["action"].strip(),
             "purpose": b.get("purpose", "").strip(), "visual": b.get("visual_description", "").strip(),
             "camera": b.get("camera", "").strip(), "lighting": b.get("lighting", "").strip(),
-            "continuity": b.get("continuity_notes", "").strip(), "weight": float(b.get("relative_weight", 1.0))}
+            "continuity": b.get("continuity_notes", "").strip(), "transition": (b.get("transition") or "").strip(),
+            "weight": float(b.get("relative_weight", 1.0))}
+    if not out["transition"]:
+        del out["transition"]  # same shape as a saved/reloaded beat (empty text fields are omitted)
+    return out
 
 
 def beat_to_ai(b, panel):
@@ -121,6 +125,7 @@ def beat_to_ai(b, panel):
             "shot_type": b.get("shot", ""), "camera": b.get("camera", ""),
             "visual_description": b.get("visual", "") or b.get("action", ""), "action": b.get("action", ""),
             "lighting": b.get("lighting", ""), "continuity_notes": b.get("continuity", ""),
+            "transition": b.get("transition", ""),
             "relative_weight": float(w) if isinstance(w, (int, float)) and not isinstance(w, bool) else 1.0}
 
 
@@ -138,6 +143,7 @@ def attach_timing(sb, duration, message=""):
 def storyboard_to_cfg(sb, settings, base_cfg=None, brief=None, message="", provider_info=None,
                       report=None, review=None):
     base = base_cfg or {}
+    roles = [r for r in (settings.get("reference_roles") or []) if r in REFERENCE_ROLES]
     story = story_meta(sb)
     style = sb.get("visual_style", "").strip().rstrip(".")
     palette = sb.get("color_palette", "").strip().rstrip(".")
@@ -147,7 +153,8 @@ def storyboard_to_cfg(sb, settings, base_cfg=None, brief=None, message="", provi
         "story_title": sb.get("title", "").strip(),
         "duration": int(settings.get("duration", base.get("duration", 15))),
         "model": settings.get("model") or base.get("model", "Seedance 2.0"),
-        "ref_mode": settings.get("ref_mode", base.get("ref_mode", "image")),
+        "ref_mode": "image" if roles else "text",
+        "reference_roles": roles,
         "character_desc": subject_text(story),
         "concept": sb.get("concept", "").strip(),
         "beats": [beat_from_ai(b) for b in sb["beats"]],
@@ -155,7 +162,8 @@ def storyboard_to_cfg(sb, settings, base_cfg=None, brief=None, message="", provi
         "avoid": adapt_avoid(story),
         "style_notes": f"{style}. Color palette: {palette}." if palette else (style + "." if style else ""),
         "borders": base.get("borders", True),
-        "extra_notes": base.get("extra_notes", ""),
+        "extra_notes": "",  # never inherit free-text notes from the previous project
+        "prompt_mode": base.get("prompt_mode", "image"),
         "story": story,
         "ai": {
             "original_message": message,

@@ -6,7 +6,7 @@ GUI-independent and thread-safe to call from a worker thread (it never touches T
 from copy import deepcopy
 
 from .ai_provider import AIProviderError
-from .constants import STORY_TYPES
+from .constants import REFERENCE_ROLES, STORY_TYPES
 from .convert import beat_from_ai, cfg_to_storyboard, storyboard_to_cfg
 from .schema import validate as schema_validate
 from .story_interpreter import InputError, check_message, interpret
@@ -16,13 +16,23 @@ from .timing import check_duration
 
 DEFAULT_SETTINGS = {
     "story_type": "auto", "duration": 15, "visual_style": "Automatic", "audience": "",
-    "subject_desc": "", "ref_mode": "image", "output_language": "en", "model": "Seedance 2.0",
+    "subject_desc": "", "ref_mode": "text", "reference_roles": [], "output_language": "en",
+    "model": "Seedance 2.0",
 }
 
 
-def normalize_settings(settings):
+def normalize_settings(settings, require_roles=True):
+    """Defaults + validation. A reference image needs an explicit, user-selected role (never guessed)."""
     s = dict(DEFAULT_SETTINGS)
-    s.update({k: v for k, v in (settings or {}).items() if v is not None})
+    given = {k: v for k, v in (settings or {}).items() if v is not None}
+    s.update(given)
+    roles = [r for r in (s.get("reference_roles") or []) if r in REFERENCE_ROLES]
+    s["reference_roles"] = roles
+    if roles:
+        s["ref_mode"] = "image"
+    elif s.get("ref_mode") == "image" and require_roles:
+        raise InputError("You chose to upload a reference image. Please select what it shows: "
+                         + ", ".join(REFERENCE_ROLES.values()) + " (or choose 'No reference image').")
     s["duration"] = check_duration(s["duration"])
     if s["story_type"] not in STORY_TYPES:
         s["story_type"] = "auto"
@@ -83,8 +93,9 @@ class StoryDirector:
     def regenerate_scene(self, cfg, index, note="", settings=None):
         """Return a NEW cfg where only beat `index` is replaced. Timing weight of the scene is kept so
         approved scenes keep their timecodes."""
-        settings = normalize_settings(settings or (cfg.get("ai") or {}).get("settings") or
-                                      {"duration": cfg.get("duration", 15), "ref_mode": cfg.get("ref_mode")})
+        settings = dict(settings or (cfg.get("ai") or {}).get("settings") or {})
+        settings.update(ref_mode=cfg.get("ref_mode", "text"), reference_roles=cfg.get("reference_roles") or [])
+        settings = normalize_settings(settings, require_roles=False)
         settings["duration"] = check_duration(cfg.get("duration", settings["duration"]))
         self._step(f"Regenerating scene {index + 1}…")
         sb = cfg_to_storyboard(cfg)

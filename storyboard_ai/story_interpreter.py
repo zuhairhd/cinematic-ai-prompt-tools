@@ -63,9 +63,10 @@ def build_user_prompt(message, settings):
                      f"{settings['subject_desc']}")
     if settings.get("visual_style") and settings["visual_style"] != "Automatic":
         lines.append(f"Visual style requested: {settings['visual_style']}")
-    if settings.get("ref_mode") == "image":
-        lines.append("The user will upload a reference image of the main character/subject in the image tool. "
-                     "Do not contradict it; describe appearance only where the user gave details.")
+    if settings.get("reference_roles"):
+        lines.append("The user will upload a reference image in the image tool showing: "
+                     + ", ".join(settings["reference_roles"]) + ". Do not contradict it; describe appearance "
+                     "only where the user gave details.")
     lines.append(f"Video length: {settings.get('duration', 15)} seconds, 9 storyboard panels.")
     return "\n\n".join(lines)
 

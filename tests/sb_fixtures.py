@@ -34,12 +34,17 @@ def brief(story_type="motivational", lang="en", kind="human", subject="a tired y
     return b
 
 
-def _beats(spec, lighting=None, weights=None):
+TRANSITIONS = ["Slow push-in into", "Hard cut to", "Match cut on the eyes to", "Cut to detail", "Hard cut to",
+               "Slow dissolve to", "Tracking move into", "Whip pan to", ""]
+NEUTRAL_SHOTS = SHOTS[:8] + ["Wide closing shot"]
+
+
+def _beats(spec, lighting=None, weights=None, shots=None):
     beats = []
     for i, (title, visual, action) in enumerate(spec):
         beats.append({
             "panel": i + 1, "title": title, "purpose": f"Story stage {i + 1}: {title.lower()}",
-            "shot_type": SHOTS[i], "camera": CAMERAS[i],
+            "shot_type": (shots or SHOTS)[i], "camera": CAMERAS[i], "transition": TRANSITIONS[i],
             "visual_description": visual, "action": action,
             "lighting": (lighting[i] if lighting else "Soft consistent key light from the left, gentle haze"),
             "continuity_notes": "Same subject, same location and style as the previous panel",
@@ -50,7 +55,7 @@ def _beats(spec, lighting=None, weights=None):
 
 def storyboard(story_type="motivational", title="AFTER THE STORM", character=None, product=None,
                environment=None, fixed=None, changes=None, spec=None, lighting=None, style=None, avoid=None,
-               weights=None):
+               weights=None, shots=None):
     spec = spec or HOPE_SPEC
     return {
         "title": title,
@@ -79,7 +84,7 @@ def storyboard(story_type="motivational", title="AFTER THE STORM", character=Non
                                           "Stone pier and red lighthouse", "Anamorphic photoreal film look"],
             "intentional_changes": changes if changes is not None else [],
         },
-        "beats": _beats(spec, lighting, weights),
+        "beats": _beats(spec, lighting, weights, shots),
         "avoid": avoid if avoid is not None else ["text overlays"],
     }
 
@@ -204,7 +209,7 @@ def new_beat(panel=4, title="HANDS ON THE COMPASS", visual="Extreme close-up of 
             "shot_type": "Extreme close-up", "camera": "macro, locked off, shallow depth",
             "visual_description": visual, "action": "She opens the compass and steadies her breath.",
             "lighting": "Cold blue storm light", "continuity_notes": "Same raincoat and compass",
-            "relative_weight": 2.5}
+            "transition": "Hard cut", "relative_weight": 2.5}
 
 
 def copy(x):

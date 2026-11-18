@@ -34,9 +34,10 @@ import queue
 from copy import deepcopy
 
 from storyboard_ai.constants import (BEAT_WEIGHTS, SHOT_TYPES, PRESERVE_ITEMS, AVOID_DEFAULT,  # noqa: F401
+                                     TEMPLATE_BEATS, TEMPLATE_CONCEPT, REFERENCE_ROLES,
                                      DURATION_CHOICES, MIN_DURATION, MAX_DURATION, STORY_TYPES, VISUAL_STYLES)
 from storyboard_ai.timing import fmt_time, compute_timecodes, check_duration, TimingError  # noqa: F401
-from storyboard_ai.prompt_compiler import compile_ai_prompt, preserve_phrase
+from storyboard_ai.prompt_compiler import MODES as PROMPT_MODES, compile_prompt, preserve_phrase
 
 APP_TITLE = "Timed Storyboard Prompt Generator - IDALL AI L2"
 
@@ -44,28 +45,6 @@ APP_TITLE = "Timed Storyboard Prompt Generator - IDALL AI L2"
 # Lesson reference data  (BEAT_WEIGHTS, SHOT_TYPES, PRESERVE_ITEMS, AVOID_DEFAULT
 # live in storyboard_ai/constants.py and are re-exported here)
 # --------------------------------------------------------------------------
-
-# The universal 9-beat template, word for word from the lesson prompt.
-TEMPLATE_BEATS = [
-    {"title": "OPENING SILENCE", "shot": "Extreme wide shot",
-     "action": "The character stands alone in the environment. The atmosphere is calm and cinematic."},
-    {"title": "THE SHIFT BEGINS", "shot": "Medium shot",
-     "action": "Wind, light, dust, rain, smoke, or atmosphere begins to move around the character."},
-    {"title": "THE CHARACTER SENSES IT", "shot": "Close-up portrait",
-     "action": "The character's eyes or expression subtly change as they notice something."},
-    {"title": "SMALL DETAIL MOVES", "shot": "Detail shot",
-     "action": "A small object, fabric, hand, ground texture, jewelry, water, or dust begins to react."},
-    {"title": "TENSION BUILDS", "shot": "Low-angle or dramatic medium shot",
-     "action": "The environment becomes heavier, stronger, or more unstable around the character."},
-    {"title": "HIDDEN FORCE", "shot": "Wide shot",
-     "action": "A mysterious shape, shadow, movement, light, or threat appears in the distance or background."},
-    {"title": "ATMOSPHERE SURGES", "shot": "Side profile or cinematic angle",
-     "action": "The character turns slightly as the atmosphere intensifies."},
-    {"title": "THE REVEAL", "shot": "Wide action shot",
-     "action": "The main visual event happens. Something powerful is revealed in the scene."},
-    {"title": "HERO ENDING", "shot": "Low-angle hero shot",
-     "action": "The character remains strong and visually iconic while the atmosphere surrounds them."},
-]
 
 BEAT_PURPOSE = [
     "Establish world & scale - calm",
@@ -79,12 +58,6 @@ BEAT_PURPOSE = [
     "Iconic hero payoff",
 ]
 
-TEMPLATE_CONCEPT = (
-    "The character stands alone in their environment. They sense something changing. "
-    "The atmosphere becomes more intense. Small details begin to move. A larger force or "
-    "event appears in the distance. The character stays emotionally controlled as the scene "
-    "builds toward a powerful final moment."
-)
 
 
 def _b(title, shot, action):
@@ -272,14 +245,19 @@ def is_ai_cfg(cfg):
     return cfg.get("mode") == "ai" and isinstance(cfg.get("story"), dict)
 
 
-def build_prompt(cfg):
+def build_prompt(cfg, mode="image"):
     """cfg keys: duration, model, ref_mode, character_desc, concept, beats, preserve,
-    avoid, style_notes, borders, extra_notes  (+ mode/story for AI storyboards)"""
+    avoid, style_notes, borders, extra_notes  (+ mode/story/reference_roles for AI storyboards).
+
+    mode="image": the prompt for the 3x3 storyboard image (manual projects keep the lesson format);
+    mode="director": the detailed Director's Storyboard, compiled from the same project state."""
     beats = cfg.get("beats") or []
     if len(beats) != 9:
         raise ValueError(f"A storyboard needs exactly 9 beats (found {len(beats)}).")
-    if is_ai_cfg(cfg):
-        return compile_ai_prompt(cfg)
+    if mode not in PROMPT_MODES:
+        raise ValueError(f"Unknown prompt mode {mode!r}.")
+    if is_ai_cfg(cfg) or mode == "director":
+        return compile_prompt(cfg, mode)
     duration = int(cfg.get("duration", 15))
     model = (cfg.get("model") or "Seedance 2.0").strip() or "Seedance 2.0"
     tcs = compute_timecodes(duration, beat_weights(beats))
@@ -308,8 +286,11 @@ def build_prompt(cfg):
         if preserve_txt:
             p.append(f"Keep the same {preserve_txt} in every panel.")
 
-    concept = (cfg.get("concept") or "").strip() or TEMPLATE_CONCEPT
-    p.append(f"The scene concept:\n{concept}")
+    # The lesson concept appears only when the project itself contains it (Generic preset);
+    # an empty concept is never silently replaced by the generic template.
+    concept = (cfg.get("concept") or "").strip()
+    if concept:
+        p.append(f"The scene concept:\n{concept}")
 
     lines = ["Storyboard timing and panels:"]
     for tc, b in zip(tcs, beats):
@@ -371,7 +352,7 @@ def build_beat_sheet_md(cfg, title):
             "## Beat sheet", "", "| # | Timecode | Shot title | Shot type | Action | Purpose |",
             "|---|---|---|---|---|---|"]
     for i, (tc, b) in enumerate(zip(tcs, cfg["beats"])):
-        purpose = b.get("purpose") or BEAT_PURPOSE[i]
+        purpose = b.get("purpose") or ("" if is_ai_cfg(cfg) else BEAT_PURPOSE[i])
         out.append(f"| {i + 1} | {tc} | {_md_cell(b['title'])} | {_md_cell(b['shot'])} | {_md_cell(b['action'])} "
                    f"| {_md_cell(purpose)} |")
     if is_ai_cfg(cfg):
@@ -471,6 +452,9 @@ def build_app(root, provider_factory=None):
     v_duration = tk.IntVar(value=15)
     v_model = tk.StringVar(value="Seedance 2.0")
     v_ref = tk.StringVar(value="image")
+    role_vars = {k: tk.BooleanVar(value=False) for k in REFERENCE_ROLES}  # what the uploaded image shows
+    v_pmode = tk.StringVar(value=PROMPT_MODES["image"])
+    MODE_KEYS = {v: k for k, v in PROMPT_MODES.items()}
     v_borders = tk.BooleanVar(value=True)
     preserve_vars = {item: tk.BooleanVar(value=True) for item in PRESERVE_ITEMS}
     beat_widgets = []  # (tc_label, title_var, shot_var, action_text, purpose_var)
@@ -540,13 +524,14 @@ def build_app(root, provider_factory=None):
     ttk.Combobox(opts, textvariable=v_vstyle, values=VISUAL_STYLES, width=34).grid(row=1, column=1, sticky="w")
     ttk.Label(opts, text="Target audience", style="Bold.TLabel").grid(row=1, column=2, sticky="w", padx=(16, 6))
     ttk.Entry(opts, textvariable=v_audience, width=34).grid(row=1, column=3, sticky="w")
-    ttk.Label(opts, text="Reference image", style="Bold.TLabel").grid(row=2, column=0, sticky="w", pady=2)
+    ttk.Label(opts, text="Reference image shows", style="Bold.TLabel").grid(row=2, column=0, sticky="w", pady=2)
     rr = ttk.Frame(opts)
     rr.grid(row=2, column=1, sticky="w")
-    ttk.Radiobutton(rr, text="I will upload a character/product image", value="image", variable=v_ref,
-                    command=lambda: toggle_desc()).pack(side="left")
-    ttk.Radiobutton(rr, text="Text only", value="text", variable=v_ref,
-                    command=lambda: toggle_desc()).pack(side="left", padx=6)
+    ttk.Radiobutton(rr, text="No image", value="text", variable=v_ref,
+                    command=lambda: on_ref_mode()).pack(side="left")
+    for _k, _lbl in REFERENCE_ROLES.items():
+        ttk.Checkbutton(rr, text=_lbl.split(" /")[0], variable=role_vars[_k],
+                        command=lambda: on_role_toggle()).pack(side="left", padx=2)
     ttk.Label(opts, text="Storyboard language", style="Bold.TLabel").grid(row=2, column=2, sticky="w", padx=(16, 6))
     ttk.Combobox(opts, textvariable=v_lang, values=LANG_OPTIONS, state="readonly", width=34).grid(
         row=2, column=3, sticky="w")
@@ -592,6 +577,8 @@ def build_app(root, provider_factory=None):
     act2.grid(row=5, column=0, sticky="ew", pady=(6, 0))
     ttk.Button(act2, text="Generate final prompt  ->", style="Accent.TButton",
                command=lambda: generate()).pack(side="left")
+    ttk.Combobox(act2, textvariable=v_pmode, values=list(PROMPT_MODES.values()), state="readonly",
+                 width=34).pack(side="left", padx=6)
     ttk.Button(act2, text="Copy prompt", command=lambda: copy_prompt()).pack(side="left", padx=6)
     ttk.Button(act2, text="Save project…", command=lambda: save_story()).pack(side="left", padx=6)
     ttk.Button(act2, text="Load project…", command=lambda: open_story()).pack(side="left", padx=6)
@@ -656,13 +643,16 @@ def build_app(root, provider_factory=None):
     ttk.Combobox(t1, textvariable=v_model, values=["Seedance 2.0", "Kling", "Veo", "Runway", "Sora", "Hailuo"],
                  width=20).grid(row=3, column=1, sticky="w")
 
-    ttk.Label(t1, text="Character reference", style="Bold.TLabel").grid(row=4, column=0, sticky="nw", pady=4)
+    ttk.Label(t1, text="Reference image", style="Bold.TLabel").grid(row=4, column=0, sticky="nw", pady=4)
     ref_row = ttk.Frame(t1)
     ref_row.grid(row=4, column=1, sticky="w")
-    ttk.Radiobutton(ref_row, text="Uploaded image (lesson method, recommended)", value="image",
-                    variable=v_ref, command=lambda: toggle_desc()).pack(anchor="w")
-    ttk.Radiobutton(ref_row, text="Text description (no image)", value="text",
-                    variable=v_ref, command=lambda: toggle_desc()).pack(anchor="w")
+    ttk.Radiobutton(ref_row, text="Uploaded image (lesson method) — it shows:", value="image",
+                    variable=v_ref, command=lambda: on_ref_mode()).pack(side="left")
+    for _k, _lbl in REFERENCE_ROLES.items():
+        ttk.Checkbutton(ref_row, text=_lbl, variable=role_vars[_k],
+                        command=lambda: on_role_toggle()).pack(side="left", padx=2)
+    ttk.Radiobutton(ref_row, text="No image (text description)", value="text",
+                    variable=v_ref, command=lambda: on_ref_mode()).pack(side="left", padx=8)
 
     ttk.Label(t1, text="Character / world\ndescription", style="Bold.TLabel").grid(row=5, column=0, sticky="nw", pady=4)
     txt_desc = tk.Text(t1, height=5, wrap="word", font=("Segoe UI", 10))
@@ -674,6 +664,18 @@ def build_app(root, provider_factory=None):
     t1.rowconfigure(6, weight=1)
     v_mode_lbl = tk.StringVar()
     ttk.Label(t1, textvariable=v_mode_lbl, style="Sub.TLabel").grid(row=7, column=1, sticky="w")
+
+    def on_role_toggle():
+        v_ref.set("image" if any(v.get() for v in role_vars.values()) else "text")
+        toggle_desc()
+
+    def on_ref_mode():
+        if v_ref.get() == "text":
+            for v in role_vars.values():
+                v.set(False)
+        elif not any(v.get() for v in role_vars.values()):
+            status.set("Tick what the reference image shows (Character, Product, Environment or Style).")
+        toggle_desc()
 
     def toggle_desc():
         # AI storyboards use the description as supporting notes even in image mode.
@@ -866,6 +868,8 @@ def build_app(root, provider_factory=None):
     osb.pack(side="right", fill="y")
     v_count = tk.StringVar()
     ttk.Label(bar, textvariable=v_count, style="Sub.TLabel").pack(side="right")
+    ttk.Combobox(bar, textvariable=v_pmode, values=list(PROMPT_MODES.values()), state="readonly",
+                 width=34).pack(side="right", padx=6)
 
     # ================= Tab 5: Lesson guide =================
     t5 = ttk.Frame(nb, padding=10)
@@ -889,7 +893,9 @@ def build_app(root, provider_factory=None):
              "preserve": [k for k in PRESERVE_ITEMS if preserve_vars[k].get()],
              "avoid": txt_avoid.get("1.0", "end").strip(), "style_notes": txt_style.get("1.0", "end").strip(),
              "borders": v_borders.get(), "extra_notes": txt_extra.get("1.0", "end").strip(),
-             "mode": state["mode"], "story": deepcopy(state["story"]), "ai": deepcopy(state["ai"])}
+             "mode": state["mode"], "story": deepcopy(state["story"]), "ai": deepcopy(state["ai"]),
+             "reference_roles": [k for k, v in role_vars.items() if v.get()] if v_ref.get() == "image" else [],
+             "prompt_mode": prompt_mode()}
         if c["story"] is not None:
             c["story"].setdefault("continuity", {})
             c["story"]["continuity"]["fixed_attributes"] = [
@@ -910,7 +916,8 @@ def build_app(root, provider_factory=None):
 
     def comparable(c):
         return json.dumps({k: c.get(k) for k in ("story_title", "duration", "ref_mode", "character_desc", "concept",
-                                                 "beats", "preserve", "avoid", "style_notes", "extra_notes", "story")},
+                                                 "beats", "preserve", "avoid", "style_notes", "extra_notes", "story",
+                                                 "reference_roles")},
                           sort_keys=True, ensure_ascii=False, default=str)
 
     def is_dirty():
@@ -922,6 +929,13 @@ def build_app(root, provider_factory=None):
         state["ai"] = deepcopy(c.get("ai")) if isinstance(c.get("ai"), dict) else None
         v_title.set(c.get("story_title", "")); v_duration.set(int(c.get("duration", 15)))
         v_model.set(c.get("model", "Seedance 2.0")); v_ref.set(c.get("ref_mode", "image"))
+        roles = c.get("reference_roles")
+        if roles is None and c.get("ref_mode", "image") == "image" and state["mode"] == "manual":
+            roles = ["character"]  # presets / v1 projects: the lesson's character image
+        for k, v in role_vars.items():
+            v.set(k in (roles or []))
+        if c.get("prompt_mode") in PROMPT_MODES:
+            v_pmode.set(PROMPT_MODES[c["prompt_mode"]])
         v_borders.set(c.get("borders", True))
         set_text(txt_desc, c.get("character_desc", "")); set_text(txt_concept, c.get("concept", ""))
         set_text(txt_style, c.get("style_notes", ""))
@@ -963,7 +977,7 @@ def build_app(root, provider_factory=None):
                                              "Generate the prompt without a preserve list?"):
                 return None
         try:
-            text = build_prompt(c)
+            text = build_prompt(c, prompt_mode())
         except (ValueError, TimingError) as e:
             ui.showerror("Generate prompt", str(e))
             return None
@@ -976,6 +990,35 @@ def build_app(root, provider_factory=None):
         if switch:
             nb.select(t4)
         return text
+
+    def prompt_mode():
+        return MODE_KEYS.get(v_pmode.get(), "image")
+
+    def hand_edited():
+        shown = out.get("1.0", "end").strip()
+        return bool(shown) and shown != (state["last_generated"] or "").strip()
+
+    def refresh_prompt(_e=None):
+        """Live view: rebuild the prompt from the current state unless the user hand-edited it.
+        Silent (no dialogs); invalid storyboards simply keep the last prompt."""
+        if hand_edited():
+            return None
+        c = collect_cfg()
+        if not validate_cfg(c).ok:
+            return None
+        try:
+            text = build_prompt(c, prompt_mode())
+        except (ValueError, TimingError):
+            return None
+        if text != out.get("1.0", "end").strip():
+            out.delete("1.0", "end"); out.insert("1.0", text); out.edit_reset()
+        state["last_generated"] = text
+        v_count.set(f"{len(text.split())} words · {len(text)} characters")
+        return text
+
+    def on_tab(_e=None):
+        if nb.select() == str(t4):
+            refresh_prompt()
 
     def copy_prompt():
         shown = out.get("1.0", "end").strip()
@@ -1028,8 +1071,10 @@ def build_app(root, provider_factory=None):
             return None
         shown = out.get("1.0", "end").strip()
         try:
-            final = shown or build_prompt(c)
-            save_project(c, f, final_prompt=final)
+            # never save a stale prompt: rebuild from the current state unless the user hand-edited it
+            final = shown if (hand_edited() and prompt_mode() == "image") else build_prompt(c, "image")
+            director = shown if (hand_edited() and prompt_mode() == "director") else build_prompt(c, "director")
+            save_project(c, f, final_prompt=final, director_prompt=director)
         except (OSError, ValueError) as e:
             ui.showerror("Save project", f"Could not save the project:\n{e}")
             return None
@@ -1055,9 +1100,11 @@ def build_app(root, provider_factory=None):
             set_text(txt_msg, ai["original_message"]); on_msg_key()
             state["last_message"] = ai["original_message"]
             state["last_settings"] = ai.get("settings")
-        fresh = build_prompt(c)
-        out.delete("1.0", "end"); out.insert("1.0", c.get("final_prompt") or fresh)
+        fresh = build_prompt(c, prompt_mode())
+        out.delete("1.0", "end"); out.insert("1.0", fresh)  # always compiled from the loaded state
         state["last_generated"] = fresh
+        if c.get("migrated_from"):
+            status.set(f"Project upgraded from schema v{c['migrated_from']}.")
         show_result(describe_ai(c) if c.get("mode") == "ai" else "Loaded a manual (non-AI) storyboard project.")
         status.set(f"Loaded project: {f}")
         return c
@@ -1069,6 +1116,7 @@ def build_app(root, provider_factory=None):
         return {"story_type": _story_type_key(v_story_type.get()), "duration": get_duration(),
                 "visual_style": v_vstyle.get().strip() or "Automatic", "audience": v_audience.get().strip(),
                 "subject_desc": txt_subject.get("1.0", "end").strip(), "ref_mode": v_ref.get(),
+                "reference_roles": [k for k, v in role_vars.items() if v.get()] if v_ref.get() == "image" else [],
                 "output_language": "same" if v_lang.get() == LANG_OPTIONS[1] else "en",
                 "model": v_model.get().strip() or "Seedance 2.0"}
 
@@ -1162,7 +1210,11 @@ def build_app(root, provider_factory=None):
         val = ai.get("validation") or {}
         lines.append("DETERMINISTIC CHECKS: " + ("PASSED" if not val.get("errors") else "FAILED"))
         lines += [f"  ! {w}" for w in val.get("warnings") or []]
-        lines += [f"  ! {w}" for w in validate_cfg(c).warnings]
+        vc = validate_cfg(c)
+        lines += [f"  ! {w}" for w in vc.warnings]
+        if vc.notes:
+            lines.append("PROMPT CONSISTENCY (resolved automatically):")
+            lines += [f"  ✓ {n}" for n in vc.notes]
         lines.append("")
         if ai.get("review"):
             lines.append(review_text(ai["review"]))
@@ -1187,6 +1239,10 @@ def build_app(root, provider_factory=None):
             return
         try:
             normalize_settings(settings)
+        except InputError as e:
+            ui.showwarning("AI Story Director", str(e))
+            return
+        try:
             provider = make_provider()
         except AIProviderError as e:
             ui.showerror("AI Story Director", e.user_message() + "\n\nManual mode (tabs 1-4) works without an API key.")
@@ -1272,6 +1328,8 @@ def build_app(root, provider_factory=None):
     ttk.Button(bottom, text="Save story...", command=save_story).pack(side="left", padx=6)
     ttk.Label(bottom, textvariable=status, style="Sub.TLabel").pack(side="left", padx=12)
 
+    nb.bind("<<NotebookTabChanged>>", on_tab)
+    v_pmode.trace_add("write", lambda *_: refresh_prompt())
     load_cfg(default_cfg(v_preset.get()))
     on_msg_key()
 
@@ -1297,7 +1355,8 @@ def _cli_ai(a):
     from storyboard_ai.storyboard_planner import StoryboardGenerationError
     from storyboard_ai.storyboard_validator import review_text
     settings = {"story_type": a.story_type, "duration": a.duration, "visual_style": a.style or "Automatic",
-                "audience": a.audience or "", "subject_desc": a.subject or "", "ref_mode": a.ref,
+                "audience": a.audience or "", "subject_desc": a.subject or "",
+                "ref_mode": a.ref or ("image" if a.ref_role else "text"), "reference_roles": a.ref_role or [],
                 "output_language": a.lang, "model": a.video_model}
     try:
         director = StoryDirector(OpenAIProvider(model=a.ai_model), run_review=not a.no_review,
@@ -1310,13 +1369,14 @@ def _cli_ai(a):
     except StoryboardGenerationError as e:
         sys.exit(f"Generation failed: {e.user_message()}")
     cfg = result.cfg
-    text = build_prompt(cfg)
+    text = build_prompt(cfg, a.mode)
     if result.report and result.report.warnings:
         print("\n".join("warning: " + w for w in result.report.warnings), file=sys.stderr)
     if result.review:
         print(review_text(result.review), file=sys.stderr)
     if a.save:
-        save_project(cfg, a.save, final_prompt=text)
+        save_project(cfg, a.save, final_prompt=build_prompt(cfg, "image"),
+                     director_prompt=build_prompt(cfg, "director"))
         print(f"Saved project: {a.save}", file=sys.stderr)
     print(build_beat_sheet_md(cfg, cfg["story_title"]) if a.md else text)
 
@@ -1333,7 +1393,12 @@ def main(argv=None):
     ap.add_argument("--style", help="visual style for --ai")
     ap.add_argument("--audience", help="target audience for --ai")
     ap.add_argument("--subject", help="character/product description to preserve for --ai")
-    ap.add_argument("--ref", default="image", choices=["image", "text"], help="reference image mode for --ai")
+    ap.add_argument("--ref", choices=["image", "text"],
+                    help="reference image mode for --ai (default: image if --ref-role is given, else text)")
+    ap.add_argument("--ref-role", action="append", choices=list(REFERENCE_ROLES),
+                    help="what the uploaded reference image shows (repeatable), e.g. --ref-role character")
+    ap.add_argument("--mode", default="image", choices=list(PROMPT_MODES),
+                    help="image = optimized image-generation prompt; director = detailed director's storyboard")
     ap.add_argument("--lang", default="en", choices=["en", "same"], help="storyboard language for --ai")
     ap.add_argument("--video-model", default="Seedance 2.0", help="target video model named in the prompt")
     ap.add_argument("--ai-model", help="story-planning LLM (default: STORYBOARD_AI_MODEL or gpt-5-mini)")
@@ -1351,14 +1416,14 @@ def main(argv=None):
         if not name:
             sys.exit(f"Unknown preset. Options:\n" + "\n".join(PRESETS))
         c = default_cfg(name); c["duration"] = a.duration
-        print(build_beat_sheet_md(c, c["story_title"]) if a.md else build_prompt(c)); return
+        print(build_beat_sheet_md(c, c["story_title"]) if a.md else build_prompt(c, a.mode)); return
     if a.project:
         from storyboard_ai.project_io import ProjectError, load_project
         try:
             c = load_project(a.project)
         except ProjectError as e:
             sys.exit(f"Could not load project: {e}")
-        print(build_beat_sheet_md(c, c["story_title"] or "Storyboard") if a.md else build_prompt(c)); return
+        print(build_beat_sheet_md(c, c["story_title"] or "Storyboard") if a.md else build_prompt(c, a.mode)); return
     if a.ai:
         _cli_ai(a); return
     try:

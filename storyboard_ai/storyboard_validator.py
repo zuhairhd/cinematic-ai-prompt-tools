@@ -14,7 +14,7 @@ N = 9
 
 # Intentional-change keyword groups -> preserve items / avoid phrases they would contradict.
 CHANGE_GROUPS = {
-    "lighting": (r"\b(light|lighting|sun|sunrise|sunset|dawn|dusk|night|daylight|shadows?|glow|time of day)\b",
+    "lighting": (r"\b(light|lighting|sun|sunrise|sunset|dawn|dusk|night|daylight|time of day)\b",
                  # a planned light change (storm -> sunrise) also changes the grade
                  ["lighting direction", "cinematic color grading"],
                  ["changing the lighting style", "changing the lighting"]),
@@ -24,8 +24,11 @@ CHANGE_GROUPS = {
                    ["atmosphere"], ["changing the atmosphere"]),
     "outfit": (r"\b(outfit|clothes|clothing|costume|wardrobe|dress|uniform)\b",
                ["outfit"], ["changing the outfit"]),
-    "environment": (r"\b(environment|location|setting|place|scenery|landscape)\b",
+    "environment": (r"\b(environment|location|setting|place|scenery|landscape|world|terrain)\b",
                     ["environment"], ["changing the environment"]),
+    # planned changes to a character's look: identity stays locked, but with an explicit exception
+    "appearance": (r"\b(hair|hairstyle|makeup|scars?|tattoos?|ages?|aging|ageing|older|younger|appearance|"
+                   r"beard|body|transforms?|transformation)\b", [], []),
 }
 
 VAGUE_PHRASES = ["something happens", "epic scene", "beautiful moment", "cinematic scene", "amazing shot",
@@ -41,7 +44,7 @@ were be by his her its it he she has had who whom whose made make look looks lik
 
 class ValidationReport:
     def __init__(self):
-        self.errors, self.warnings = [], []
+        self.errors, self.warnings, self.notes = [], [], []  # notes: automatic, reported resolutions
 
     @property
     def ok(self):
@@ -120,7 +123,7 @@ def check_subject_preserved(subject_desc, sb):
     return errs, []
 
 
-def validate_storyboard(sb, settings=None):
+def validate_storyboard(sb, settings=None, message=""):
     """Deterministic validation of an AI storyboard dict (before timing is attached)."""
     settings = settings or {}
     rep = ValidationReport()
@@ -170,7 +173,43 @@ def validate_storyboard(sb, settings=None):
     # story-specific avoid items that forbid an intentional change
     for msg in _avoid_vs_changes(sb["avoid"], sb["continuity"]["intentional_changes"]):
         rep.warnings.append(msg)
+    e, w = check_contamination(sb, message, settings.get("subject_desc", ""))
+    rep.errors += e
+    rep.warnings += w
     return rep
+
+
+_MENACE = re.compile(r"\b(monsters?|creatures?|beasts?|demons?|serpents?|dragons?|titans?|leviathans?|hidden force|"
+                     r"mysterious (shape|force|presence|figure)|shadowy (figure|creature|shape)|looming threat)\b", re.I)
+_REVEAL = re.compile(r"\b(the reveal|big reveal|dramatic reveal|hidden force|suspense)\b", re.I)
+
+
+def check_contamination(sb, message="", subject_desc=""):
+    """Generic lesson-template text or unrelated genre elements that the user never asked for.
+    Returns (errors, warnings); errors trigger a bounded AI repair."""
+    from .constants import TEMPLATE_BEATS, TEMPLATE_CONCEPT
+    errs, warns = [], []
+    concept = sb.get("concept", "").lower()
+    for sent in (x.strip().lower() for x in TEMPLATE_CONCEPT.split(".") if len(x.strip()) > 15):
+        if sent in concept:
+            errs.append("The concept copies the generic lesson template; write this story's own concept.")
+            break
+    template_actions = {b["action"].strip().lower() for b in TEMPLATE_BEATS}
+    for b in sb.get("beats", []):
+        if b.get("action", "").strip().lower() in template_actions:
+            errs.append(f"Panel {b.get('panel')}: action is generic lesson-template text; write it for this story.")
+    allowed = f"{message} {subject_desc}".lower()
+    st = sb.get("story_type")
+    for b in sb.get("beats", []):
+        text = f"{b.get('title', '')} {b.get('visual_description', '')} {b.get('action', '')}"
+        m = _MENACE.search(text)
+        if m and st != "cinematic_fantasy" and m.group(0).lower() not in allowed:
+            errs.append(f"Panel {b.get('panel')}: '{m.group(0)}' is unrelated to the user's message for a "
+                        f"{st} story; remove invented threats or creatures.")
+        r = _REVEAL.search(text)
+        if r and st in ("educational", "documentary", "product_showcase") and r.group(0).lower() not in allowed:
+            warns.append(f"Panel {b.get('panel')}: '{r.group(0)}' adds forced suspense to a {st} story.")
+    return errs, warns
 
 
 def change_groups(changes):
@@ -236,11 +275,21 @@ def validate_cfg(cfg):
         rep.errors += validate_timeline(tl, int(cfg.get("duration", 15)))
     except TimingError as e:
         rep.errors.append(f"Timing: {e}")
-    rep.warnings += check_cfg_contradictions(cfg)
     if cfg.get("mode") == "ai":
+        if not (cfg.get("concept") or "").strip():
+            rep.errors.append("The scene concept is empty. Write this story's concept "
+                              "(the generic lesson concept is never substituted).")
+        if cfg.get("ref_mode") == "image" and not cfg.get("reference_roles"):
+            rep.errors.append("A reference image is selected but not what it shows. Tick Character, Product, "
+                              "Environment or Style — or choose 'No reference image'.")
         fixed = ((cfg.get("story") or {}).get("continuity") or {}).get("fixed_attributes") or []
         if not fixed and not cfg.get("preserve"):
             rep.warnings.append("No continuity rules: add fixed attributes or preserve items.")
+    if rep.ok:
+        from .prompt_spec import build_spec  # local import: prompt_spec depends on this module
+        cons = build_spec(cfg)["consistency"]
+        rep.warnings += [m for m in cons["unresolved"] if m not in rep.errors]
+        rep.notes += cons["resolved"]
     return rep
 
 

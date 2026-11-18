@@ -9,4 +9,4 @@ Pipeline:  user message -> story_interpreter (creative brief)
 The AI only writes the story; Python owns timecodes, validation and prompt compilation.
 """
 
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3

@@ -66,6 +66,9 @@ BEAT_SCHEMA = _obj({
     "action": _s("ONE short, motion-ready action line printed on the panel (max ~18 words)", 8),
     "lighting": _s("Lighting and atmosphere for this panel", 5),
     "continuity_notes": _s("What must match other panels, or what intentionally changes here", 3),
+    "transition": {"type": "string",
+                   "description": "How this panel leads into the next (e.g. 'match cut on the hand', 'hard cut', "
+                                  "'slow dissolve'); '' for panel 9"},
     "relative_weight": {"type": "number", "minimum": 0.3, "maximum": 4.0,
                         "description": "Relative screen time (1.0 = average beat). Python converts to timecodes."},
 }, "One storyboard panel")

@@ -230,7 +230,7 @@ def test_save_and_reopen_generated_project(tmp_path):
     raw = p.read_text(encoding="utf-8")
     assert "sk-SHOULD-NOT-BE-SAVED" not in raw and "api_key" not in raw
     data = json.loads(raw)
-    assert data["schema_version"] == 2 and data["final_prompt"] == prompt
+    assert data["schema_version"] == 3 and data["final_prompt"] == prompt
     assert data["ai"]["original_message"] == MSG and data["ai"]["brief"]["core_message"]
     assert data["ai"]["model"] == "mock-model"
     assert data["storyboard"]["beats"][0]["action"] == "Edited by the user."
@@ -248,7 +248,7 @@ def test_legacy_v1_project_still_loads(tmp_path):
     p = tmp_path / "old.json"
     p.write_text(json.dumps(v1), encoding="utf-8")
     c = load_project(str(p))
-    assert c["mode"] == "manual" and c["schema_version"] == 2
+    assert c["mode"] == "manual" and c["schema_version"] == 3
     expected = dict(v1)
     assert app.build_prompt(c) == app.build_prompt(expected)
 

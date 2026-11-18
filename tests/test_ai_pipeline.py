@@ -121,10 +121,11 @@ def test_story_with_existing_character_reference():
     sb = F.storyboard("cinematic_fantasy", "MEDICINE RUN", character=char,
                       fixed=["Captain Layla's face from the reference image", "Red scarf", "Silver aviator goggles"])
     res, prov = run(msg, F.brief("cinematic_fantasy", subject=subject), sb,
-                    {"ref_mode": "image", "subject_desc": subject})
+                    {"ref_mode": "image", "reference_roles": ["character"], "subject_desc": subject})
     prompt = common_asserts(res, msg)
-    assert "Use the uploaded image as the main character reference." in prompt
-    assert "Captain Layla" in prompt and "uploaded image takes priority" in prompt
+    assert "primary visual reference for the main character (Captain Layla)" in prompt
+    assert "Captain Layla" in prompt and "reference image takes priority" in prompt
+    assert "Environment, lighting, camera angle and composition follow the panel descriptions" in prompt
     assert "reference image" in prov.calls[1]["user"]
 
 
@@ -153,7 +154,7 @@ def test_intentional_lighting_change_is_not_forbidden():
     assert "cold blue storm light -> warm golden sunrise" in prompt
     assert "changing the lighting style" not in prompt
     assert "lighting direction" not in cfg["preserve"]
-    assert "except for the intentional progression" in prompt
+    assert "do not keep these fixed" in prompt
     assert "consistent lighting direction" not in prompt
     assert validate_cfg(cfg).warnings == []
     # If the user re-adds a contradictory rule, it is reported (not silently changed).

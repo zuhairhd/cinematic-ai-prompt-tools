@@ -39,11 +39,20 @@ Panel rules:
   expressions). No vague words like "something", "epic scene", "beautiful moment" without specifics.
 - action: one short, present-tense, motion-ready line (max ~18 words). This text is printed on the panel.
 - title: 1-5 words, UPPERCASE.
+- Keep it tight; the final image prompt must stay readable. visual_description: max ~45 words.
+  shot_type and camera: a few words each. lighting: max ~15 words. concept: max ~70 words.
+  visual_style: max ~30 words. Describe each character's look once (in character), not in every panel.
 - No unnecessary visual effects, no unrelated cinematic elements, no on-screen text except a brief
   call to action or product name when the story type truly needs it.
 - relative_weight: relative screen time (1.0 = average; use 0.6-2.5). Give key moments and the
   ending more time. Python converts weights into exact timecodes; do not write timecodes.
-- Panel 9 must land the message with a meaningful, visually clear ending.
+- Panel 9 must land the message with an ending that fits THIS story (it may be quiet, funny, practical
+  or open-ended; it does not have to be heroic).
+- Tell only this story. Do not add generic suspense, mysterious forces, monsters, hidden threats, dramatic
+  reveals or heroic poses unless the user's message calls for them. Do not add characters the story does
+  not need; an advertisement or explainer may have no hero at all.
+- concept: write this story's own one-paragraph scene concept. Never use a generic template concept.
+- transition: how each panel leads into the next (match cut, hard cut, dissolve, camera move); '' for panel 9.
 - Commit to ONE concrete choice per panel. Never offer alternatives ("X or Y", "choose whichever",
   "either ... or"): the image model cannot choose consistently.
 - This is a still-image storyboard: describe only what is visible. No sound, music, dialogue or
@@ -98,10 +107,18 @@ def build_plan_prompt(brief, message, settings):
     if settings.get("subject_desc"):
         parts.append("USER-SPECIFIED CHARACTER / PRODUCT (preserve every detail, do not rename or redesign):\n"
                      + settings["subject_desc"])
-    if settings.get("ref_mode") == "image":
-        parts.append("The user will upload a reference image of the main character/subject. Panels must "
-                     "keep that exact identity; describe it as 'the character from the reference image' plus "
-                     "any user-given details. Do not invent conflicting facial features.")
+    roles = settings.get("reference_roles") or []
+    if roles:
+        parts.append("The user will upload ONE reference image showing: " + ", ".join(roles) + ". "
+                     + ("Keep the character's identity from that image (do not invent conflicting facial "
+                        "features); environment and composition may change as the story requires. "
+                        if "character" in roles else "")
+                     + ("Keep the product's exact design from that image. " if "product" in roles else "")
+                     + ("Use the image as the starting location. " if "environment" in roles else "")
+                     + ("Use the image only as a style reference, not for its content. " if "style" in roles else ""))
+    else:
+        parts.append("No reference image will be uploaded: describe every character and product completely "
+                     "in text, and never mention a reference image.")
     return "\n\n".join(parts)
 
 
@@ -132,7 +149,7 @@ def plan(provider, brief, message, settings, max_repairs=MAX_REPAIRS, progress=N
         errors = validate(sb, STORYBOARD_SCHEMA, "storyboard")
         report = None
         if not errors:
-            report = validate_storyboard(sb, settings)
+            report = validate_storyboard(sb, settings, message)
             errors = report.errors
         if not errors:
             return sb, report

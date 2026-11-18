@@ -78,3 +78,42 @@ VISUAL_STYLES = [
     "Watercolor illustration",
     "Film noir black and white",
 ]
+
+# ---- Original lesson template (legacy presets only; never injected into AI-generated projects)
+# The universal 9-beat template, word for word from the lesson prompt.
+TEMPLATE_BEATS = [
+    {"title": "OPENING SILENCE", "shot": "Extreme wide shot",
+     "action": "The character stands alone in the environment. The atmosphere is calm and cinematic."},
+    {"title": "THE SHIFT BEGINS", "shot": "Medium shot",
+     "action": "Wind, light, dust, rain, smoke, or atmosphere begins to move around the character."},
+    {"title": "THE CHARACTER SENSES IT", "shot": "Close-up portrait",
+     "action": "The character's eyes or expression subtly change as they notice something."},
+    {"title": "SMALL DETAIL MOVES", "shot": "Detail shot",
+     "action": "A small object, fabric, hand, ground texture, jewelry, water, or dust begins to react."},
+    {"title": "TENSION BUILDS", "shot": "Low-angle or dramatic medium shot",
+     "action": "The environment becomes heavier, stronger, or more unstable around the character."},
+    {"title": "HIDDEN FORCE", "shot": "Wide shot",
+     "action": "A mysterious shape, shadow, movement, light, or threat appears in the distance or background."},
+    {"title": "ATMOSPHERE SURGES", "shot": "Side profile or cinematic angle",
+     "action": "The character turns slightly as the atmosphere intensifies."},
+    {"title": "THE REVEAL", "shot": "Wide action shot",
+     "action": "The main visual event happens. Something powerful is revealed in the scene."},
+    {"title": "HERO ENDING", "shot": "Low-angle hero shot",
+     "action": "The character remains strong and visually iconic while the atmosphere surrounds them."},
+]
+
+
+TEMPLATE_CONCEPT = (
+    "The character stands alone in their environment. They sense something changing. "
+    "The atmosphere becomes more intense. Small details begin to move. A larger force or "
+    "event appears in the distance. The character stays emotionally controlled as the scene "
+    "builds toward a powerful final moment."
+)
+
+# What an uploaded reference image represents (user-selected; never guessed from the story).
+REFERENCE_ROLES = {
+    "character": "Character",
+    "product": "Product",
+    "environment": "Environment / location",
+    "style": "Style reference",
+}

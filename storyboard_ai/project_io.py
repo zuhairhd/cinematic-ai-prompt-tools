@@ -2,7 +2,11 @@
 
 Schema v1 (original app): the flat cfg dict. Schema v2 adds: schema_version, mode, story (AI structure
 metadata), ai (original message, creative brief, generated storyboard, model info, validation, review),
-storyboard (user-edited structure with timing) and final_prompt. v1 files load unchanged; old app
+storyboard (user-edited structure with timing) and final_prompt. Schema v3 adds: reference_roles (what the
+uploaded image shows), prompt_mode (image | director), director_prompt, and a per-beat transition.
+Migration: v1 manual projects keep the lesson meaning (uploaded image = character). v2 AI projects get the
+role the v2 compiler used (character if the story had one, else product); if neither applies the role is
+left unset and the app asks the user instead of guessing. v1 files load unchanged; old app
 versions can still open v2 files because all v1 keys are kept at the top level.
 Credentials are never written: any key that looks like a secret is removed recursively.
 """
@@ -14,13 +18,13 @@ import tempfile
 from datetime import datetime, timezone
 
 from . import SCHEMA_VERSION
-from .constants import AVOID_DEFAULT, PRESERVE_ITEMS
+from .constants import AVOID_DEFAULT, PRESERVE_ITEMS, REFERENCE_ROLES
 from .timing import TimingError, check_duration
 
 _SECRET = re.compile(r"(api[_-]?key|secret|token|password|authorization)", re.I)
 _STR_KEYS = ("story_title", "model", "character_desc", "concept", "avoid", "style_notes", "extra_notes",
-             "final_prompt")
-_BEAT_TEXT = ("title", "shot", "action", "purpose", "visual", "camera", "lighting", "continuity")
+             "final_prompt", "director_prompt")
+_BEAT_TEXT = ("title", "shot", "action", "purpose", "visual", "camera", "lighting", "continuity", "transition")
 
 
 class ProjectError(ValueError):
@@ -97,6 +101,28 @@ def normalize_project(data):
     cfg["ai"] = scrub_secrets(ai) if isinstance(ai, dict) else None
     if cfg["mode"] == "ai" and not cfg["story"]:
         cfg["mode"] = "manual"
+    cfg["prompt_mode"] = data.get("prompt_mode") if data.get("prompt_mode") in ("image", "director") else "image"
+    roles = data.get("reference_roles")
+    if roles is not None:
+        if not isinstance(roles, list) or not all(r in REFERENCE_ROLES for r in roles):
+            raise ProjectError(f"'reference_roles' must be a list of: {', '.join(REFERENCE_ROLES)}.")
+        cfg["reference_roles"] = list(dict.fromkeys(roles))
+    elif cfg["ref_mode"] == "image":
+        if cfg["mode"] == "manual":
+            cfg["reference_roles"] = ["character"]  # v1/v2 manual: the lesson's character image
+        else:
+            story = cfg["story"]
+            if (story.get("character") or {}).get("present"):
+                cfg["reference_roles"] = ["character"]
+            elif (story.get("product") or {}).get("present"):
+                cfg["reference_roles"] = ["product"]
+            # else: unknown -> left unset; validation asks the user to choose
+    else:
+        cfg["reference_roles"] = []
+    if cfg["ref_mode"] == "image" and cfg.get("reference_roles") == []:
+        cfg["ref_mode"] = "text"
+    if ver < SCHEMA_VERSION:
+        cfg["migrated_from"] = ver
     return cfg
 
 
@@ -111,11 +137,13 @@ def load_project(path):
     return normalize_project(data)
 
 
-def project_payload(cfg, final_prompt=""):
+def project_payload(cfg, final_prompt="", director_prompt=""):
     from .convert import storyboard_document
     data = dict(cfg)
+    data.pop("migrated_from", None)
     data["schema_version"] = SCHEMA_VERSION
     data["final_prompt"] = final_prompt or cfg.get("final_prompt", "")
+    data["director_prompt"] = director_prompt or cfg.get("director_prompt", "")
     try:
         data["storyboard"] = storyboard_document(cfg)
     except Exception:  # structure export is informational; never block saving the editable cfg
@@ -124,8 +152,8 @@ def project_payload(cfg, final_prompt=""):
     return scrub_secrets(data)
 
 
-def save_project(cfg, path, final_prompt=""):
-    data = project_payload(cfg, final_prompt)
+def save_project(cfg, path, final_prompt="", director_prompt=""):
+    data = project_payload(cfg, final_prompt, director_prompt)
     d = os.path.dirname(os.path.abspath(path))
     fd, tmp = tempfile.mkstemp(prefix=".storyboard_", suffix=".json", dir=d)
     try:
