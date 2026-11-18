@@ -75,3 +75,7 @@ docs/                            One page per tool
 - These tools **write prompts**. They don't generate images or video themselves.
 - The storyboard and character tools follow the method taught in the *IDALL AI* course (Part 2,
   Lessons 1–2). The course material itself is not included in this repository.
+
+## License
+
+[MIT](LICENSE) © 2026 zuhairhd
