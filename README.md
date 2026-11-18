@@ -1,5 +1,7 @@
 # Cinematic AI Prompt Tools
 
+**Repository:** https://github.com/zuhairhd/cinematic-ai-prompt-tools
+
 Four Python desktop tools (Tkinter) that write high-quality prompts for AI image, video and chat
 models. Every tool has a graphical interface and runs on Windows, macOS and Linux.
 
